@@ -7,4 +7,4 @@ require (
 	github.com/go-chi/cors v1.2.1
 )
 
-require github.com/jaydamon/http-toolbox v0.0.0-20221228140848-a3634d4041fe // indirect
+require github.com/jaydamon/http-toolbox v0.0.0-20221228140848-a3634d4041fe
