@@ -1,15 +1,18 @@
 package main
 
 import (
-	"factotum/moneymaker/plaid-integration/pkg/app"
-	"factotum/moneymaker/plaid-integration/pkg/config"
 	"log"
+
+	"github.com/factotum/moneymaker/plaid-integration/pkg/app"
+	"github.com/factotum/moneymaker/plaid-integration/pkg/config"
 )
 
 func main() {
 
 	config := config.GetConfig()
 	app := &app.App{}
+
+	log.Print("Initializing app\n")
 
 	app.Initialize(config)
 

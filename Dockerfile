@@ -15,6 +15,6 @@ FROM alpine:latest
 RUN mkdir /app
 
 # COPY --from=builder /app/plaidIntegration /app
-COPY /app/plaidIntegration /app
+COPY plaidIntegration /app
 
 CMD ["/app/plaidIntegration"]
