@@ -1,11 +1,12 @@
 package app
 
 import (
-	"factotum/moneymaker/plaid-integration/pkg/config"
-	"factotum/moneymaker/plaid-integration/pkg/routes"
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/factotum/moneymaker/plaid-integration/pkg/config"
+	"github.com/factotum/moneymaker/plaid-integration/pkg/routes"
 
 	"github.com/go-chi/chi/v5"
 )
