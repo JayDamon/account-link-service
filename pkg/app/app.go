@@ -20,7 +20,7 @@ func (a *App) Initialize(config *config.Config) {
 
 	a.Server = &http.Server{
 		Addr:    fmt.Sprintf(":%s", config.HostPort),
-		Handler: routes.CreateRoutes(a.Broker),
+		Handler: routes.CreateRoutes(config),
 	}
 }
 

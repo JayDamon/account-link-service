@@ -3,15 +3,18 @@ package routes
 import (
 	"net/http"
 
+	"github.com/factotum/moneymaker/plaid-integration/pkg/config"
+	"github.com/factotum/moneymaker/plaid-integration/pkg/plaid"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/jaydamon/moneymakergocloak"
 )
 
-func CreateRoutes(handlerFn http.HandlerFunc) http.Handler {
-	mux := chi.NewRouter()
+func CreateRoutes(config *config.Config) http.Handler {
+	router := chi.NewRouter()
 
-	mux.Use(cors.Handler(cors.Options{
+	router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
@@ -20,13 +23,15 @@ func CreateRoutes(handlerFn http.HandlerFunc) http.Handler {
 		MaxAge:           300,
 	}))
 
-	mux.Use(middleware.Heartbeat("/ping"))
+	keyCloakMiddleware := moneymakergocloak.NewKeyCloakMiddleWare(config.KeyCloakConfig)
+	router.Use(keyCloakMiddleware.VerifyToken)
+	router.Use(middleware.Heartbeat("/ping"))
 
-	addRoutes(mux, handlerFn)
+	addRoutes(router, plaid.CreateLinkToken)
 
-	return mux
+	return router
 }
 
 func addRoutes(mux *chi.Mux, handlerFn http.HandlerFunc) {
-	mux.Post("/", handlerFn)
+	mux.Get("/", handlerFn)
 }
