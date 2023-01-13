@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/factotum/moneymaker/plaid-integration/pkg/config"
-	"github.com/factotum/moneymaker/plaid-integration/pkg/plaid"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -27,11 +26,12 @@ func CreateRoutes(config *config.Config) http.Handler {
 	router.Use(keyCloakMiddleware.VerifyToken)
 	router.Use(middleware.Heartbeat("/ping"))
 
-	addRoutes(router, plaid.CreateLinkToken)
+	addRoutes(router, config)
 
 	return router
 }
 
-func addRoutes(mux *chi.Mux, handlerFn http.HandlerFunc) {
-	mux.Get("/", handlerFn)
+func addRoutes(mux *chi.Mux, config *config.Config) {
+	mux.Post("/api/v1/link/private-access-token", config.Plaid.CreatePrivateAccessToken)
+	mux.Post("/api/v1/item/public-token", config.Plaid.CreateLinkToken)
 }

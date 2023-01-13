@@ -1,18 +1,48 @@
 package plaid
 
-// func createLinkToken(c *gin.Context) {
-//   ctx := context.Background()
-//   // Get the client_user_id by searching for the current user
-//   user, _ := usermodels.Find(...)
-//   clientUserId := user.ID.String()
-//   // Create a link_token for the given user
-//   request := plaid.NewLinkTokenCreateRequest("Plaid Test App", "en", []plaid.CountryCode{plaid.COUNTRYCODE_US}, *plaid.NewLinkTokenCreateRequestUser(clientUserId))
-//   request.SetWebhook("https://webhook.sample.com")
-//   request.SetRedirectUri("https://domainname.com/oauth-page.html")
-//   request.SetProducts([]plaid.Products{plaid.PRODUCTS_AUTH})
-//     resp, _, err := testClient.PlaidApi.LinkTokenCreate(ctx).LinkTokenCreateRequest(*request).Execute()
-//   // Send the data to the client
-//   c.JSON(http.StatusOK, gin.H{
-//     "link_token": resp.GetLinkToken(),
-//   })
-// }
+import (
+	"github.com/jaydamon/moneymakergocloak"
+	"github.com/plaid/plaid-go/plaid"
+)
+
+var environments = map[string]plaid.Environment{
+	"sandbox":     plaid.Sandbox,
+	"development": plaid.Development,
+	"production":  plaid.Production,
+}
+
+type PlaidConfig struct {
+	Client       *plaid.APIClient
+	Config       *plaid.Configuration
+	Products     string
+	CountryCodes string
+	RedirectUrl  string
+	Auth         *moneymakergocloak.KeyCloakConfig
+}
+
+func NewPlaidConfig(
+	plaidClientId string,
+	plaidSecret string,
+	plaidEnv string,
+	plaidProducts string,
+	plaidCountryCodes string,
+	plaidRedirectUri string,
+	keyCloakConfig *moneymakergocloak.KeyCloakConfig) *PlaidConfig {
+
+	config := plaid.NewConfiguration()
+	config.AddDefaultHeader("PLAID-CLIENT-ID", plaidClientId)
+	config.AddDefaultHeader("PLAID-SECRET", plaidSecret)
+	config.UseEnvironment(environments[plaidEnv])
+	// config.Debug = true
+
+	client := plaid.NewAPIClient(config)
+
+	return &PlaidConfig{
+		Client:       client,
+		Config:       config,
+		Products:     plaidProducts,
+		CountryCodes: plaidCountryCodes,
+		RedirectUrl:  plaidRedirectUri,
+		Auth:         keyCloakConfig,
+	}
+}
