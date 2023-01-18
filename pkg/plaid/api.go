@@ -3,38 +3,30 @@ package plaid
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
 
-	httptoolbox "github.com/jaydamon/http-toolbox"
+	"github.com/factotum/moneymaker/plaid-integration/pkg/models"
+	"github.com/factotum/moneymaker/plaid-integration/pkg/users"
+	tools "github.com/jaydamon/http-toolbox"
 	"github.com/jaydamon/moneymakergocloak"
 	"github.com/plaid/plaid-go/plaid"
 )
 
-type PublicToken struct {
-	PublicToken string `json:"publicToken"`
-}
+func (plaidCtx *PlaidContext) CreatePrivateAccessToken(w http.ResponseWriter, r *http.Request) {
 
-type PrivateToken struct {
-	PrivateToken *string `json:"privateToken"`
-	ItemId       *string `json:"itemId"`
-}
+	var publicToken models.PublicToken
 
-type LinkToken struct {
-	LinkToken *string `json:"linkToken"`
-}
+	config := plaidCtx.context.Config.Plaid
 
-func (config *PlaidConfig) CreatePrivateAccessToken(w http.ResponseWriter, r *http.Request) {
-
-	var tools httptoolbox.Tools
-	var publicToken PublicToken
-
-	log.Print("Recieved request ", r.Body)
+	log.Print("Recieved request ", &r.Body)
 
 	err := json.NewDecoder(r.Body).Decode(&publicToken)
 	if err != nil {
-		tools.ErrorJSON(w, err, 500)
+		fmt.Println("Error decoading input body", err)
+		tools.RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -45,25 +37,35 @@ func (config *PlaidConfig) CreatePrivateAccessToken(w http.ResponseWriter, r *ht
 		*plaid.NewItemPublicTokenExchangeRequest(publicToken.PublicToken),
 	).Execute()
 	if err != nil {
-		tools.ErrorJSON(w, err, 500)
+		fmt.Println("Error exchanging public token for private token", err)
+		tools.RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	accessToken := exchangePublicTokenResp.GetAccessToken() // This needs to be saved in the database
+	accessToken := exchangePublicTokenResp.GetAccessToken()
 	itemId := exchangePublicTokenResp.GetItemId()
+	userId := moneymakergocloak.ExtractUserIdFromToken(w, r, plaidCtx.context.Config.KeyCloakConfig)
 
-	pt := &PrivateToken{
+	pt := &models.PrivateToken{
+		UserID:       &userId,
 		PrivateToken: &accessToken,
 		ItemId:       &itemId,
 	}
 
+	err = users.CreateAccountToken(plaidCtx.context.Config, pt)
+	if err != nil {
+		fmt.Println("Error calling user service to create account token", err)
+		tools.RespondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	// Long term do not want to send back to front end, just store in db and give success response
-	_ = tools.WriteJSON(w, http.StatusOK, pt)
+	tools.RespondNoBody(w, http.StatusCreated)
 }
 
-func (config *PlaidConfig) CreateLinkToken(w http.ResponseWriter, r *http.Request) {
+func (plaidCtx *PlaidContext) CreateLinkToken(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
-	var tools httptoolbox.Tools
+	config := plaidCtx.context.Config.Plaid
 
 	countryCodes := convertCountryCodes(strings.Split(config.CountryCodes, ","))
 	redirectURI := config.RedirectUrl
@@ -91,12 +93,12 @@ func (config *PlaidConfig) CreateLinkToken(w http.ResponseWriter, r *http.Reques
 	linkTokenCreateResp, _, err := config.Client.PlaidApi.LinkTokenCreate(ctx).LinkTokenCreateRequest(*request).Execute()
 	if err != nil {
 		log.Print("Error retrieving LinkToken ", err)
-		tools.ErrorJSON(w, err, 500)
+		tools.RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	linkToken := linkTokenCreateResp.GetLinkToken()
-	tools.WriteJSON(w, 200, LinkToken{LinkToken: &linkToken})
+	tools.Respond(w, http.StatusOK, models.LinkToken{LinkToken: &linkToken})
 }
 
 func convertCountryCodes(countryCodeStrs []string) []plaid.CountryCode {

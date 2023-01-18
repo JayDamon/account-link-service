@@ -1,4 +1,4 @@
-package plaid
+package config
 
 import (
 	"github.com/jaydamon/moneymakergocloak"
@@ -20,7 +20,7 @@ type PlaidConfig struct {
 	Auth         *moneymakergocloak.KeyCloakConfig
 }
 
-func NewPlaidConfig(
+func newPlaidConfig(
 	plaidClientId string,
 	plaidSecret string,
 	plaidEnv string,

@@ -5,15 +5,15 @@ import (
 	"log"
 	"os"
 
-	plaidconfig "github.com/factotum/moneymaker/plaid-integration/pkg/plaid"
 	"github.com/jaydamon/moneymakergocloak"
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
 	HostPort       string
+	UserServiceUrl string
 	KeyCloakConfig *moneymakergocloak.KeyCloakConfig
-	Plaid          *plaidconfig.PlaidConfig
+	Plaid          *PlaidConfig
 }
 
 func GetConfig() *Config {
@@ -24,6 +24,8 @@ func GetConfig() *Config {
 	}
 
 	hostPort := getOrDefault("HOST_PORT", "3000")
+
+	userServiceUrl := getOrDefault("USER_SERVICE_URL", "http://localhost:8091")
 
 	keycloakIssuerUri := getOrDefault("ISSUER_URI", "http://localhost:8081/auth")
 	keycloakClientName := getOrDefault("CLIENT_NAME", "plaid-integration-service")
@@ -41,12 +43,13 @@ func GetConfig() *Config {
 
 	return &Config{
 		HostPort:       hostPort,
+		UserServiceUrl: userServiceUrl,
 		KeyCloakConfig: keyCloakConfig,
 		Plaid:          getPlaidConfig(keyCloakConfig),
 	}
 }
 
-func getPlaidConfig(auth *moneymakergocloak.KeyCloakConfig) *plaidconfig.PlaidConfig {
+func getPlaidConfig(auth *moneymakergocloak.KeyCloakConfig) *PlaidConfig {
 
 	PLAID_CLIENT_ID := getOrExit("PLAID_CLIENT_ID")
 	PLAID_SECRET := getOrExit("PLAID_SECRET")
@@ -55,7 +58,7 @@ func getPlaidConfig(auth *moneymakergocloak.KeyCloakConfig) *plaidconfig.PlaidCo
 	PLAID_COUNTRY_CODES := getOrDefault("PLAID_COUNTRY_CODES", "US")
 	PLAID_REDIRECT_URI := getOrDefault("PLAID_REDIRECT_URI", "")
 
-	return plaidconfig.NewPlaidConfig(
+	return newPlaidConfig(
 		PLAID_CLIENT_ID,
 		PLAID_SECRET,
 		PLAID_ENV,

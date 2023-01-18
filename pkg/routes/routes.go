@@ -4,13 +4,14 @@ import (
 	"net/http"
 
 	"github.com/factotum/moneymaker/plaid-integration/pkg/config"
+	"github.com/factotum/moneymaker/plaid-integration/pkg/plaid"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/jaydamon/moneymakergocloak"
 )
 
-func CreateRoutes(config *config.Config) http.Handler {
+func CreateRoutes(context *config.Context) http.Handler {
 	router := chi.NewRouter()
 
 	router.Use(cors.Handler(cors.Options{
@@ -22,16 +23,11 @@ func CreateRoutes(config *config.Config) http.Handler {
 		MaxAge:           300,
 	}))
 
-	keyCloakMiddleware := moneymakergocloak.NewKeyCloakMiddleWare(config.KeyCloakConfig)
+	keyCloakMiddleware := moneymakergocloak.NewKeyCloakMiddleWare(context.Config.KeyCloakConfig)
 	router.Use(keyCloakMiddleware.VerifyToken)
 	router.Use(middleware.Heartbeat("/ping"))
 
-	addRoutes(router, config)
+	plaid.AddRoutes(router, context)
 
 	return router
-}
-
-func addRoutes(mux *chi.Mux, config *config.Config) {
-	mux.Post("/api/v1/link/private-access-token", config.Plaid.CreatePrivateAccessToken)
-	mux.Post("/api/v1/item/public-token", config.Plaid.CreateLinkToken)
 }

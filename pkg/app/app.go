@@ -12,15 +12,20 @@ import (
 )
 
 type App struct {
-	Router *chi.Mux
-	Server *http.Server
+	Router  *chi.Mux
+	Server  *http.Server
+	Context *config.Context
 }
 
-func (a *App) Initialize(config *config.Config) {
+func (a *App) Initialize(configuration *config.Config) {
+
+	a.Context = &config.Context{
+		Config: configuration,
+	}
 
 	a.Server = &http.Server{
-		Addr:    fmt.Sprintf(":%s", config.HostPort),
-		Handler: routes.CreateRoutes(config),
+		Addr:    fmt.Sprintf(":%s", configuration.HostPort),
+		Handler: routes.CreateRoutes(a.Context),
 	}
 }
 

@@ -5,10 +5,11 @@ go 1.19
 require (
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-chi/cors v1.2.1
+	github.com/jaydamon/http-toolbox v0.0.0-20230114132444-809dfa8092f7
 )
 
 require (
-	github.com/jaydamon/http-toolbox v0.0.0-20221228140848-a3634d4041fe
+	// github.com/jaydamon/http-toolbox v0.0.0-20221228140848-a3634d4041fe
 	github.com/jaydamon/moneymakergocloak v0.0.0-20230113012426-d7f271be356c
 	github.com/joho/godotenv v1.4.0
 	github.com/plaid/plaid-go v1.10.0

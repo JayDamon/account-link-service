@@ -111,8 +111,8 @@ github.com/googleapis/gax-go/v2 v2.0.5/go.mod h1:DWXyrwAJ9X0FpwwEdw+IPEYBICEFu5m
 github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/hashicorp/golang-lru v0.5.1/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
-github.com/jaydamon/http-toolbox v0.0.0-20221228140848-a3634d4041fe h1:WpxUC1JKlcDEMp9M6gmy3apJoDYpSHqvlsGqv/66fuU=
-github.com/jaydamon/http-toolbox v0.0.0-20221228140848-a3634d4041fe/go.mod h1:uA4pMkA4cbZmtH6aQYUwNRij8O3BPAF6/9Bpy1+AHBA=
+github.com/jaydamon/http-toolbox v0.0.0-20230114132444-809dfa8092f7 h1:VHgJX++Jy0bmSOVkf/JBwyK5Z/H1onBd2OWnUCboGgk=
+github.com/jaydamon/http-toolbox v0.0.0-20230114132444-809dfa8092f7/go.mod h1:uA4pMkA4cbZmtH6aQYUwNRij8O3BPAF6/9Bpy1+AHBA=
 github.com/jaydamon/moneymakergocloak v0.0.0-20230113012426-d7f271be356c h1:cuCpTvUmQ5dNFvm49UAoQs/Wn2yxYKNiqKQ+C4ev09c=
 github.com/jaydamon/moneymakergocloak v0.0.0-20230113012426-d7f271be356c/go.mod h1:EOJpmoxlV9P/jC7CHFRPqI159V9xWVRdJQBsDruPuIA=
 github.com/joho/godotenv v1.4.0 h1:3l4+N6zfMWnkbPEXKng2o2/MR5mSwTrBih4ZEkkz1lg=
