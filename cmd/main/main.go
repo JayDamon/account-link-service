@@ -9,14 +9,14 @@ import (
 
 func main() {
 
-	config := config.GetConfig()
-	app := &app.App{}
+	configuration := config.GetConfig()
+	application := &app.App{}
 
-	log.Print("Initializing app\n")
+	log.Print("Initializing application\n")
 
-	app.Initialize(config)
+	application.Initialize(configuration)
 
-	log.Printf("Starting service on port %s\n", config.HostPort)
+	log.Printf("Starting service on port %s\n", configuration.HostPort)
 
-	app.Run()
+	application.Run()
 }
