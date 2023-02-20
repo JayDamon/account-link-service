@@ -15,7 +15,7 @@ import (
 	"github.com/plaid/plaid-go/plaid"
 )
 
-func (plaidCtx *PlaidContext) CreatePrivateAccessToken(w http.ResponseWriter, r *http.Request) {
+func (plaidCtx *Context) CreatePrivateAccessToken(w http.ResponseWriter, r *http.Request) {
 
 	var publicToken models.PublicToken
 
@@ -63,7 +63,7 @@ func (plaidCtx *PlaidContext) CreatePrivateAccessToken(w http.ResponseWriter, r 
 	tools.RespondNoBody(w, http.StatusCreated)
 }
 
-func (plaidCtx *PlaidContext) CreateLinkToken(w http.ResponseWriter, r *http.Request) {
+func (plaidCtx *Context) CreateLinkToken(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	config := plaidCtx.context.Config.Plaid
 

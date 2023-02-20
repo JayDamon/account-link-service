@@ -7,10 +7,10 @@ import (
 
 func AddRoutes(mux *chi.Mux, context *config.Context) {
 
-	plaidContext := &PlaidContext{
+	plaidContext := &Context{
 		context: context,
 	}
 
-	mux.Post("/api/v1/link/private-access-token", plaidContext.CreatePrivateAccessToken)
-	mux.Post("/api/v1/item/public-token", plaidContext.CreateLinkToken)
+	mux.Post("/v1/link/private-access-token", plaidContext.CreatePrivateAccessToken)
+	mux.Post("/v1/item/public-token", plaidContext.CreateLinkToken)
 }
