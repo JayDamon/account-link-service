@@ -1,1 +1,1 @@
-# moneymaker-account-link
+# moneymaker-account-link-service

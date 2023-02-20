@@ -4,8 +4,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"net/http"
 
-	"github.com/factotum/moneymaker/account-link/pkg/config"
-	"github.com/factotum/moneymaker/account-link/pkg/plaid"
+	"github.com/factotum/moneymaker/account-link-service/pkg/config"
+	"github.com/factotum/moneymaker/account-link-service/pkg/plaid"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/jaydamon/moneymakergocloak"

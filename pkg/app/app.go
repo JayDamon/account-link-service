@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/factotum/moneymaker/account-link/pkg/config"
-	"github.com/factotum/moneymaker/account-link/pkg/routes"
+	"github.com/factotum/moneymaker/account-link-service/pkg/config"
+	"github.com/factotum/moneymaker/account-link-service/pkg/routes"
 )
 
 type App struct {

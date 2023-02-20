@@ -1,4 +1,4 @@
-module github.com/factotum/moneymaker/account-link
+module github.com/factotum/moneymaker/account-link-service
 
 go 1.19
 

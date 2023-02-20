@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/factotum/moneymaker/account-link/pkg/config"
-	"github.com/factotum/moneymaker/account-link/pkg/models"
+	"github.com/factotum/moneymaker/account-link-service/pkg/config"
+	"github.com/factotum/moneymaker/account-link-service/pkg/models"
 )
 
 func CreateAccountToken(config *config.Config, token *models.PrivateToken) error {

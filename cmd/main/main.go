@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/factotum/moneymaker/account-link/pkg/app"
-	"github.com/factotum/moneymaker/account-link/pkg/config"
+	"github.com/factotum/moneymaker/account-link-service/pkg/app"
+	"github.com/factotum/moneymaker/account-link-service/pkg/config"
 )
 
 func main() {
