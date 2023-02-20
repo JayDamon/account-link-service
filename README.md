@@ -1,1 +1,1 @@
-# moneymaker-plaid-integration
+# moneymaker-account-link

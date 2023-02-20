@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/factotum/moneymaker/plaid-integration/pkg/config"
+	"github.com/factotum/moneymaker/account-link/pkg/config"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"net/http"

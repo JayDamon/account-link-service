@@ -6,15 +6,15 @@
 
 # WORKDIR /app
 
-# RUN CGO_ENABLED=0 go build -o plaidIntegration ./cmd/main
+# RUN CGO_ENABLED=0 go build -o accountLink ./cmd/main
 
-# RUN chmod +x /app/plaidIntegration
+# RUN chmod +x /app/accountLink
 
 FROM alpine:latest
 
 RUN mkdir /app
 
-# COPY --from=builder /app/plaidIntegration /app
-COPY plaidIntegration /app
+# COPY --from=builder /app/accountLink /app
+COPY accountLink /app
 
-CMD ["/app/plaidIntegration"]
+CMD ["/app/accountLink"]

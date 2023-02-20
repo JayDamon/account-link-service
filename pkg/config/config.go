@@ -28,7 +28,7 @@ func GetConfig() *Config {
 	userServiceUrl := getOrDefault("USER_SERVICE_URL", "http://localhost:8091")
 
 	keycloakIssuerUri := getOrDefault("ISSUER_URI", "http://keycloak:8081/auth")
-	keycloakClientName := getOrDefault("CLIENT_NAME", "plaid-integration-service")
+	keycloakClientName := getOrDefault("CLIENT_NAME", "account-link-service")
 	keycloakClientSecret := getOrDefault("CLIENT_SECRET", "wQeV8pZwtBf9dIdKTGrqceyM3eeleokY")
 	keycloakRealm := getOrDefault("REALM", "moneymaker")
 	keyCloakDebugActive := getOrDefaultBool("DEBUG_ACTIVE", false)

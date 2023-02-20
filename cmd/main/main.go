@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/factotum/moneymaker/plaid-integration/pkg/app"
-	"github.com/factotum/moneymaker/plaid-integration/pkg/config"
+	"github.com/factotum/moneymaker/account-link/pkg/app"
+	"github.com/factotum/moneymaker/account-link/pkg/config"
 )
 
 func main() {

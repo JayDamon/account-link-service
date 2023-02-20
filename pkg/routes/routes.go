@@ -1,11 +1,11 @@
 package routes
 
 import (
+	"github.com/go-chi/chi/v5"
 	"net/http"
 
-	"github.com/factotum/moneymaker/plaid-integration/pkg/config"
-	"github.com/factotum/moneymaker/plaid-integration/pkg/plaid"
-	"github.com/go-chi/chi/v5"
+	"github.com/factotum/moneymaker/account-link/pkg/config"
+	"github.com/factotum/moneymaker/account-link/pkg/plaid"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/jaydamon/moneymakergocloak"

@@ -1,6 +1,6 @@
 package plaid
 
-import "github.com/factotum/moneymaker/plaid-integration/pkg/config"
+import "github.com/factotum/moneymaker/account-link/pkg/config"
 
 type Context struct {
 	context *config.Context

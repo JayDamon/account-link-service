@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/factotum/moneymaker/plaid-integration/pkg/models"
-	"github.com/factotum/moneymaker/plaid-integration/pkg/users"
+	"github.com/factotum/moneymaker/account-link/pkg/models"
+	"github.com/factotum/moneymaker/account-link/pkg/users"
 	tools "github.com/jaydamon/http-toolbox"
 	"github.com/jaydamon/moneymakergocloak"
 	"github.com/plaid/plaid-go/plaid"
@@ -77,7 +77,7 @@ func (plaidCtx *Context) CreateLinkToken(w http.ResponseWriter, r *http.Request)
 	}
 
 	request := plaid.NewLinkTokenCreateRequest(
-		"plaid-integration-service", // Change to get this dynamically
+		"account-link-service", // Change to get this dynamically
 		"en",
 		countryCodes,
 		user,

@@ -2,8 +2,8 @@ package users
 
 import (
 	"fmt"
-	"github.com/factotum/moneymaker/plaid-integration/pkg/config"
-	"github.com/factotum/moneymaker/plaid-integration/pkg/models"
+	"github.com/factotum/moneymaker/account-link/pkg/config"
+	"github.com/factotum/moneymaker/account-link/pkg/models"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"

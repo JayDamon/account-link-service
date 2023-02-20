@@ -1,6 +1,6 @@
 package users
 
-import "github.com/factotum/moneymaker/plaid-integration/pkg/config"
+import "github.com/factotum/moneymaker/account-link/pkg/config"
 
 type UserContext struct {
 	Config *config.Config

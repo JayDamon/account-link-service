@@ -1,4 +1,4 @@
-module github.com/factotum/moneymaker/plaid-integration
+module github.com/factotum/moneymaker/account-link
 
 go 1.19
 
