@@ -12,22 +12,18 @@ import (
 )
 
 type App struct {
-	Router  *chi.Mux
-	Server  *http.Server
-	Context *config.Context
+	Router *chi.Mux
+	Server *http.Server
+	Config *config.Config
 }
 
-func (a *App) Initialize(configuration *config.Config) {
+func (a *App) Initialize() {
 
-	a.Context = &config.Context{
-		Config: configuration,
-	}
-
-	handler := plaidlink.NewHandler(configuration)
+	handler := plaidlink.NewHandler(a.Config)
 
 	a.Server = &http.Server{
-		Addr:    fmt.Sprintf(":%s", configuration.HostPort),
-		Handler: routes.CreateRoutes(handler, configuration.KeyCloakConfig),
+		Addr:    fmt.Sprintf(":%s", a.Config.HostPort),
+		Handler: routes.CreateRoutes(handler, a.Config.KeyCloakConfig),
 	}
 }
 

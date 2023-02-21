@@ -10,11 +10,11 @@ import (
 func main() {
 
 	configuration := config.GetConfig()
-	application := &app.App{}
+	application := &app.App{Config: configuration}
 
 	log.Print("Initializing application\n")
 
-	application.Initialize(configuration)
+	application.Initialize()
 
 	log.Printf("Starting service on port %s\n", configuration.HostPort)
 
