@@ -1,4 +1,4 @@
-package plaid
+package plaidlink
 
 import "github.com/factotum/moneymaker/account-link-service/pkg/config"
 

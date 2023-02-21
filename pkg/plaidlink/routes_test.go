@@ -1,4 +1,4 @@
-package plaid
+package plaidlink
 
 import (
 	"github.com/factotum/moneymaker/account-link-service/pkg/config"
@@ -10,11 +10,12 @@ import (
 
 func TestAddRoutes(t *testing.T) {
 
-	testContext := config.Context{}
+	configuration := &config.Config{}
+	testHandler := NewHandler(configuration)
 
 	router := chi.NewRouter()
 
-	AddRoutes(router, &testContext)
+	AddRoutes(router, testHandler)
 
 	assert.NotNil(t, router)
 

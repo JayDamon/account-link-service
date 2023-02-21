@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/factotum/moneymaker/account-link-service/pkg/config"
+	"github.com/factotum/moneymaker/account-link-service/pkg/plaidlink"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -14,13 +15,10 @@ func TestCreateRoutes_RoutesExist(t *testing.T) {
 	os.Setenv("PLAID_CLIENT_ID", "test")
 	os.Setenv("PLAID_SECRET", "test")
 
-	keyCloakConfig := config.GetConfig()
+	config := config.GetConfig()
 
-	context := config.Context{
-		Config: keyCloakConfig,
-	}
-
-	routes := CreateRoutes(&context)
+	testHandler := plaidlink.NewHandler(config)
+	routes := CreateRoutes(testHandler, config.KeyCloakConfig)
 	chiRoutes := routes.(chi.Router)
 
 	assert.NotNil(t, chiRoutes)

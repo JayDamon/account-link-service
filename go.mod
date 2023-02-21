@@ -9,7 +9,8 @@ require (
 )
 
 require (
-	github.com/jaydamon/moneymakergocloak v0.0.0-20230113012426-d7f271be356c
+	github.com/jaydamon/moneymakergocloak v0.0.0-20230221115156-ef3a8fa2e074
+	github.com/jaydamon/moneymakerplaid v0.0.0-20230221115648-a8aa3efc6a1c
 	github.com/joho/godotenv v1.4.0
 	github.com/plaid/plaid-go v1.10.0
 	github.com/stretchr/testify v1.8.1

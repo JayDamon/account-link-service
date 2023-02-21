@@ -1,38 +1,48 @@
-package plaid
+package plaidlink
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
-	"net/http"
-	"strings"
-
+	"github.com/factotum/moneymaker/account-link-service/pkg/config"
 	"github.com/factotum/moneymaker/account-link-service/pkg/models"
 	"github.com/factotum/moneymaker/account-link-service/pkg/users"
 	tools "github.com/jaydamon/http-toolbox"
 	"github.com/jaydamon/moneymakergocloak"
 	"github.com/plaid/plaid-go/plaid"
+	"log"
+	"net/http"
+	"strings"
 )
 
-func (plaidCtx *Context) CreatePrivateAccessToken(w http.ResponseWriter, r *http.Request) {
+type Handler struct {
+	config *config.Config
+}
+
+func NewHandler(appConfig *config.Config) *Handler {
+	return &Handler{
+		config: appConfig,
+	}
+}
+
+func (handler *Handler) CreatePrivateAccessToken(w http.ResponseWriter, r *http.Request) {
 
 	var publicToken models.PublicToken
 
-	config := plaidCtx.context.Config.Plaid
+	plaidConfig := handler.config.Plaid
 
 	log.Print("Recieved request ", &r.Body)
 
 	err := json.NewDecoder(r.Body).Decode(&publicToken)
 	if err != nil {
-		fmt.Println("Error decoading input body", err)
+		fmt.Println("Error decoding input body", err)
 		tools.RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	ctx := context.Background()
 
-	client := config.Client
+	client := plaidConfig.Client
 	exchangePublicTokenResp, _, err := client.PlaidApi.ItemPublicTokenExchange(ctx).ItemPublicTokenExchangeRequest(
 		*plaid.NewItemPublicTokenExchangeRequest(publicToken.PublicToken),
 	).Execute()
@@ -44,7 +54,7 @@ func (plaidCtx *Context) CreatePrivateAccessToken(w http.ResponseWriter, r *http
 
 	accessToken := exchangePublicTokenResp.GetAccessToken()
 	itemId := exchangePublicTokenResp.GetItemId()
-	userId := moneymakergocloak.ExtractUserIdFromToken(w, r, plaidCtx.context.Config.KeyCloakConfig)
+	userId := moneymakergocloak.ExtractUserIdFromToken(w, r, handler.config.KeyCloakConfig)
 
 	pt := &models.PrivateToken{
 		UserID:       &userId,
@@ -52,7 +62,7 @@ func (plaidCtx *Context) CreatePrivateAccessToken(w http.ResponseWriter, r *http
 		ItemId:       &itemId,
 	}
 
-	err = users.CreateAccountToken(plaidCtx.context.Config, pt)
+	err = users.CreateAccountToken(handler.config, pt)
 	if err != nil {
 		fmt.Println("Error calling user service to create account token", err)
 		tools.RespondError(w, http.StatusInternalServerError, err.Error())
@@ -63,14 +73,14 @@ func (plaidCtx *Context) CreatePrivateAccessToken(w http.ResponseWriter, r *http
 	tools.RespondNoBody(w, http.StatusCreated)
 }
 
-func (plaidCtx *Context) CreateLinkToken(w http.ResponseWriter, r *http.Request) {
+func (handler *Handler) CreateLinkToken(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
-	config := plaidCtx.context.Config.Plaid
+	plaidConfig := handler.config.Plaid
 
-	countryCodes := convertCountryCodes(strings.Split(config.CountryCodes, ","))
-	redirectURI := config.RedirectUrl
+	countryCodes := convertCountryCodes(strings.Split(plaidConfig.CountryCodes, ","))
+	redirectURI := plaidConfig.RedirectUrl
 
-	userId := moneymakergocloak.ExtractUserIdFromToken(w, r, config.Auth)
+	userId := moneymakergocloak.ExtractUserIdFromToken(w, r, handler.config.KeyCloakConfig)
 
 	user := plaid.LinkTokenCreateRequestUser{
 		ClientUserId: userId,
@@ -83,14 +93,14 @@ func (plaidCtx *Context) CreateLinkToken(w http.ResponseWriter, r *http.Request)
 		user,
 	)
 
-	products := convertProducts(strings.Split(config.Products, ","))
+	products := convertProducts(strings.Split(plaidConfig.Products, ","))
 	request.SetProducts(products)
 
 	if redirectURI != "" {
 		request.SetRedirectUri(redirectURI)
 	}
 
-	linkTokenCreateResp, _, err := config.Client.PlaidApi.LinkTokenCreate(ctx).LinkTokenCreateRequest(*request).Execute()
+	linkTokenCreateResp, _, err := plaidConfig.Client.PlaidApi.LinkTokenCreate(ctx).LinkTokenCreateRequest(*request).Execute()
 	if err != nil {
 		log.Print("Error retrieving LinkToken ", err)
 		tools.RespondError(w, http.StatusInternalServerError, err.Error())
@@ -102,7 +112,7 @@ func (plaidCtx *Context) CreateLinkToken(w http.ResponseWriter, r *http.Request)
 }
 
 func convertCountryCodes(countryCodeStrs []string) []plaid.CountryCode {
-	countryCodes := []plaid.CountryCode{}
+	var countryCodes []plaid.CountryCode
 
 	for _, countryCodeStr := range countryCodeStrs {
 		countryCodes = append(countryCodes, plaid.CountryCode(countryCodeStr))
@@ -112,7 +122,7 @@ func convertCountryCodes(countryCodeStrs []string) []plaid.CountryCode {
 }
 
 func convertProducts(productStrs []string) []plaid.Products {
-	products := []plaid.Products{}
+	var products []plaid.Products
 
 	for _, productStr := range productStrs {
 		products = append(products, plaid.Products(productStr))

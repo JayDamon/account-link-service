@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/factotum/moneymaker/account-link-service/pkg/config"
+	"github.com/factotum/moneymaker/account-link-service/pkg/plaidlink"
 	"github.com/factotum/moneymaker/account-link-service/pkg/routes"
 )
 
@@ -22,9 +23,11 @@ func (a *App) Initialize(configuration *config.Config) {
 		Config: configuration,
 	}
 
+	handler := plaidlink.NewHandler(configuration)
+
 	a.Server = &http.Server{
 		Addr:    fmt.Sprintf(":%s", configuration.HostPort),
-		Handler: routes.CreateRoutes(a.Context),
+		Handler: routes.CreateRoutes(handler, configuration.KeyCloakConfig),
 	}
 }
 
