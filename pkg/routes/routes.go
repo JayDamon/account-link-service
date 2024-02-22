@@ -23,7 +23,7 @@ func CreateRoutes(handler *plaidlink.Handler, keycloak *moneymakergocloak.Config
 	}))
 
 	keyCloakMiddleware := moneymakergocloak.NewMiddleWare(keycloak)
-	router.Use(keyCloakMiddleware.VerifyToken)
+	router.Use(keyCloakMiddleware.AuthorizeHttpRequest)
 	router.Use(middleware.Heartbeat("/ping"))
 
 	plaidlink.AddRoutes(router, handler)
