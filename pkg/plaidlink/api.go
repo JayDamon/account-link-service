@@ -9,6 +9,7 @@ import (
 	"github.com/factotum/moneymaker/account-link-service/pkg/users"
 	tools "github.com/jaydamon/http-toolbox"
 	"github.com/jaydamon/moneymakergocloak"
+	"github.com/jaydamon/moneymakerrabbit"
 	"github.com/plaid/plaid-go/plaid"
 	"log"
 	"net/http"
@@ -17,11 +18,13 @@ import (
 
 type Handler struct {
 	config *config.Config
+	rabbit moneymakerrabbit.Connector
 }
 
-func NewHandler(appConfig *config.Config) *Handler {
+func NewHandler(appConfig *config.Config, rabbitConnection moneymakerrabbit.Connector) *Handler {
 	return &Handler{
 		config: appConfig,
+		rabbit: rabbitConnection,
 	}
 }
 
@@ -31,7 +34,7 @@ func (handler *Handler) CreatePrivateAccessToken(w http.ResponseWriter, r *http.
 
 	plaidConfig := handler.config.Plaid
 
-	log.Print("Recieved request ", &r.Body)
+	log.Print("Received request ", &r.Body)
 
 	err := json.NewDecoder(r.Body).Decode(&publicToken)
 	if err != nil {
@@ -54,7 +57,7 @@ func (handler *Handler) CreatePrivateAccessToken(w http.ResponseWriter, r *http.
 
 	accessToken := exchangePublicTokenResp.GetAccessToken()
 	itemId := exchangePublicTokenResp.GetItemId()
-	userId := moneymakergocloak.ExtractUserIdFromToken(w, r, handler.config.KeyCloakConfig)
+	userId := moneymakergocloak.ExtractUserIdFromTokenFromRequest(w, r, handler.config.KeyCloakConfig)
 
 	pt := &models.PrivateToken{
 		UserID:       &userId,
@@ -62,14 +65,29 @@ func (handler *Handler) CreatePrivateAccessToken(w http.ResponseWriter, r *http.
 		ItemId:       &itemId,
 	}
 
-	err = users.CreateAccountToken(handler.config, pt)
+	bearerToken, err := moneymakergocloak.GetAuthorizationHeaderFromRequest(r)
+	if err != nil {
+		tools.RespondError(w, http.StatusUnauthorized, err.Error())
+	}
+
+	err = users.CreateAccountToken(handler.config, pt, bearerToken)
 	if err != nil {
 		fmt.Println("Error calling user service to create account token", err)
 		tools.RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	// Long term do not want to send back to front end, just store in db and give success response
+	headers := make(map[string]interface{})
+	headers["Authorization"] = bearerToken
+
+	log.Printf("sending message to account_refresh queue %d", pt)
+	err = handler.rabbit.SendMessage(pt, headers, "application/json", "account_refresh", "")
+	if err != nil {
+		fmt.Println("Error sending message", err)
+		tools.RespondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	tools.RespondNoBody(w, http.StatusCreated)
 }
 
@@ -80,14 +98,14 @@ func (handler *Handler) CreateLinkToken(w http.ResponseWriter, r *http.Request) 
 	countryCodes := convertCountryCodes(strings.Split(plaidConfig.CountryCodes, ","))
 	redirectURI := plaidConfig.RedirectUrl
 
-	userId := moneymakergocloak.ExtractUserIdFromToken(w, r, handler.config.KeyCloakConfig)
+	userId := moneymakergocloak.ExtractUserIdFromTokenFromRequest(w, r, handler.config.KeyCloakConfig)
 
 	user := plaid.LinkTokenCreateRequestUser{
 		ClientUserId: userId,
 	}
 
 	request := plaid.NewLinkTokenCreateRequest(
-		"account-link-service-service", // Change to get this dynamically
+		"account-link-service", // Change to get this dynamically
 		"en",
 		countryCodes,
 		user,

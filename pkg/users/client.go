@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/factotum/moneymaker/account-link-service/pkg/config"
 	"github.com/factotum/moneymaker/account-link-service/pkg/models"
 )
 
-func CreateAccountToken(config *config.Config, token *models.PrivateToken) error {
+func CreateAccountToken(config *config.Config, token *models.PrivateToken, bearerToken string) error {
 
 	err2 := validateConfigAndToken(config, token)
 	if err2 != nil {
@@ -21,7 +22,19 @@ func CreateAccountToken(config *config.Config, token *models.PrivateToken) error
 
 	body, _ := json.Marshal(token)
 
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(body))
+	client := &http.Client{}
+
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(body))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", bearerToken)
+
+	log.Print(req)
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}

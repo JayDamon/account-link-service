@@ -1,9 +1,11 @@
 package routes
 
 import (
+	"fmt"
 	"github.com/factotum/moneymaker/account-link-service/pkg/config"
 	"github.com/factotum/moneymaker/account-link-service/pkg/plaidlink"
 	"github.com/go-chi/chi/v5"
+	"github.com/jaydamon/moneymakerrabbit"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"os"
@@ -14,11 +16,15 @@ func TestCreateRoutes_RoutesExist(t *testing.T) {
 
 	os.Setenv("PLAID_CLIENT_ID", "test")
 	os.Setenv("PLAID_SECRET", "test")
+	os.Setenv("CLIENT_NAME", "test")
+	os.Setenv("CLIENT_SECRET", "test")
+	os.Setenv("REALM", "test")
 
-	config := config.GetConfig()
+	cnf := config.GetConfig()
+	rabbitConnector := &TestConnector{}
+	testHandler := plaidlink.NewHandler(cnf, rabbitConnector)
 
-	testHandler := plaidlink.NewHandler(config)
-	routes := CreateRoutes(testHandler, config.KeyCloakConfig)
+	routes := CreateRoutes(testHandler, cnf.KeyCloakConfig)
 	chiRoutes := routes.(chi.Router)
 
 	assert.NotNil(t, chiRoutes)
@@ -38,3 +44,37 @@ func routeExists(t *testing.T, routes chi.Router, routeToValidate string) {
 	})
 	assert.True(t, found, "route not found %s", routeToValidate)
 }
+
+type TestConnector struct {
+	body                 []interface{}
+	headers              []map[string]interface{}
+	contentType          []string
+	queue                []string
+	exchange             []string
+	receiveMessagesCount int
+	sendMessageCount     int
+	failTimeCalled       int
+}
+
+func (conn *TestConnector) ReceiveMessages(queueName string, handler moneymakerrabbit.MessageHandlerFunc) {
+	conn.receiveMessagesCount++
+}
+
+func (conn *TestConnector) SendMessage(body interface{}, headers map[string]interface{}, contentType string, queue string, exchange string) error {
+	conn.body = append(conn.body, body)
+	conn.headers = append(conn.headers, headers)
+	conn.contentType = append(conn.contentType, contentType)
+	conn.queue = append(conn.queue, queue)
+	conn.exchange = append(conn.exchange, exchange)
+	conn.sendMessageCount++
+
+	if conn.sendMessageCount == conn.failTimeCalled {
+		return fmt.Errorf("failing for %o test", conn.sendMessageCount)
+	}
+
+	return nil
+}
+
+func (conn *TestConnector) Close() {}
+
+func (conn *TestConnector) DeclareExchange(exchangeName string) {}

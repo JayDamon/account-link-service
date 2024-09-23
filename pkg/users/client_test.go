@@ -30,7 +30,7 @@ func Test_CreateAccountToken_ExpectStatusCrated(t *testing.T) {
 		UserServiceUrl: server.URL,
 	}
 
-	err := CreateAccountToken(&testConfig, testToken)
+	err := CreateAccountToken(&testConfig, testToken, "")
 	assert.Nil(t, err, "Unexpected err %s", err)
 }
 
@@ -51,7 +51,7 @@ func TestCreateAccountToken_NoServiceUrl(t *testing.T) {
 
 	testConfig := config.Config{}
 
-	err := CreateAccountToken(&testConfig, testToken)
+	err := CreateAccountToken(&testConfig, testToken, "")
 	assert.NotNil(t, err, "Expected err, but was nil")
 	expectedErr := "expected valid UserServiceUrl, found nil or empty string"
 	if err.Error() != expectedErr {
@@ -71,7 +71,7 @@ func TestCreateAccountToken_NilUserIdProvided(t *testing.T) {
 		UserServiceUrl: server.URL,
 	}
 
-	err := CreateAccountToken(&testConfig, testToken)
+	err := CreateAccountToken(&testConfig, testToken, "")
 	assert.NotNil(t, err, "Expected err, but was nil")
 
 	expectedErr := "expected valid UserId, found nil or empty string"
@@ -98,7 +98,7 @@ func TestCreateAccountToken_EmptyStringUserIdProvided(t *testing.T) {
 		UserServiceUrl: server.URL,
 	}
 
-	err := CreateAccountToken(&testConfig, testToken)
+	err := CreateAccountToken(&testConfig, testToken, "")
 	assert.NotNil(t, err, "Expected err, but was nil")
 
 	expectedErr := "expected valid UserId, found nil or empty string"
@@ -121,7 +121,7 @@ func TestCreateAccountToken_NilPrivateTokenProvided(t *testing.T) {
 		UserServiceUrl: server.URL,
 	}
 
-	err := CreateAccountToken(&testConfig, testToken)
+	err := CreateAccountToken(&testConfig, testToken, "")
 	assert.NotNil(t, err, "Expected err, but was nil")
 
 	expectedErr := "expected valid Private Token, found nil or empty string"
@@ -150,7 +150,7 @@ func TestCreateAccountToken_EmptyStringPrivateTokenProvided(t *testing.T) {
 		UserServiceUrl: server.URL,
 	}
 
-	err := CreateAccountToken(&testConfig, testToken)
+	err := CreateAccountToken(&testConfig, testToken, "")
 	assert.NotNil(t, err, "Expected err, but was nil")
 
 	expectedErr := "expected valid Private Token, found nil or empty string"
@@ -173,7 +173,7 @@ func TestCreateAccountToken_NilItemIdProvided(t *testing.T) {
 		UserServiceUrl: server.URL,
 	}
 
-	err := CreateAccountToken(&testConfig, testToken)
+	err := CreateAccountToken(&testConfig, testToken, "")
 	assert.NotNil(t, err, "Expected err, but was nil")
 
 	expectedErr := "expected valid Item Id, found nil or empty string"
@@ -202,7 +202,7 @@ func TestCreateAccountToken_EmptyStringItemIdProvided(t *testing.T) {
 		UserServiceUrl: server.URL,
 	}
 
-	err := CreateAccountToken(&testConfig, testToken)
+	err := CreateAccountToken(&testConfig, testToken, "")
 	assert.NotNil(t, err, "Expected err, but was nil")
 
 	expectedErr := "expected valid Item Id, found nil or empty string"
@@ -229,7 +229,7 @@ func TestCreateAccountToken_StatusCreatedNotReturned(t *testing.T) {
 		UserServiceUrl: server.URL,
 	}
 
-	err := CreateAccountToken(&testConfig, testToken)
+	err := CreateAccountToken(&testConfig, testToken, "")
 	assert.NotNil(t, err, "Expected err, but was nil")
 
 	expectedErr := "unexpected status code found on Token Creation.\nCode: 200 OK\nBody: {}"
