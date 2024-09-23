@@ -32,6 +32,7 @@ func (a *App) Initialize() {
 	a.RabbitConnection = a.Config.Rabbit.Connect()
 
 	handler := plaidlink.NewHandler(a.Config, a.RabbitConnection)
+	a.RabbitConnection.DeclareQueue("account_refresh")
 
 	a.Server = &http.Server{
 		Addr:    fmt.Sprintf(":%s", a.Config.HostPort),
