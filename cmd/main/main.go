@@ -14,7 +14,7 @@ func main() {
 
 	application.Initialize()
 
-	defer application.RabbitConnection.Connection.Close()
+	defer application.RabbitConnection.Close()
 
 	application.Run()
 }

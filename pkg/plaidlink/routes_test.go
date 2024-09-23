@@ -1,8 +1,10 @@
 package plaidlink
 
 import (
+	"fmt"
 	"github.com/factotum/moneymaker/account-link-service/pkg/config"
 	"github.com/go-chi/chi/v5"
+	"github.com/jaydamon/moneymakerrabbit"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
@@ -11,7 +13,8 @@ import (
 func TestAddRoutes(t *testing.T) {
 
 	configuration := &config.Config{}
-	testHandler := NewHandler(configuration)
+	rabbitConnector := &TestConnector{}
+	testHandler := NewHandler(configuration, rabbitConnector)
 
 	router := chi.NewRouter()
 
@@ -34,3 +37,37 @@ func routeExists(t *testing.T, routes chi.Router, routeToValidate string) {
 	})
 	assert.True(t, found, "route not found %s", routeToValidate)
 }
+
+type TestConnector struct {
+	body                 []interface{}
+	headers              []map[string]interface{}
+	contentType          []string
+	queue                []string
+	exchange             []string
+	receiveMessagesCount int
+	sendMessageCount     int
+	failTimeCalled       int
+}
+
+func (conn *TestConnector) ReceiveMessages(queueName string, handler moneymakerrabbit.MessageHandlerFunc) {
+	conn.receiveMessagesCount++
+}
+
+func (conn *TestConnector) SendMessage(body interface{}, headers map[string]interface{}, contentType string, queue string, exchange string) error {
+	conn.body = append(conn.body, body)
+	conn.headers = append(conn.headers, headers)
+	conn.contentType = append(conn.contentType, contentType)
+	conn.queue = append(conn.queue, queue)
+	conn.exchange = append(conn.exchange, exchange)
+	conn.sendMessageCount++
+
+	if conn.sendMessageCount == conn.failTimeCalled {
+		return fmt.Errorf("failing for %o test", conn.sendMessageCount)
+	}
+
+	return nil
+}
+
+func (conn *TestConnector) Close() {}
+
+func (conn *TestConnector) DeclareExchange(exchangeName string) {}

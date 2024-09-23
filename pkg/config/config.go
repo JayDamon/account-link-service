@@ -11,12 +11,12 @@ import (
 )
 
 type Config struct {
-	HostPort       string
+	HostPort        string
 	ApplicationName string
-	UserServiceUrl string
-	KeyCloakConfig *moneymakergocloak.Configuration
-	Plaid          *moneymakerplaid.Configuration
-	Rabbit         *moneymakerrabbit.Configuration
+	UserServiceUrl  string
+	KeyCloakConfig  *moneymakergocloak.Configuration
+	Plaid           *moneymakerplaid.Configuration
+	Rabbit          *moneymakerrabbit.Configuration
 }
 
 func GetConfig() *Config {
@@ -32,11 +32,11 @@ func GetConfig() *Config {
 	userServiceUrl := getOrDefault("USER_SERVICE_URL", "http://localhost:8091")
 
 	return &Config{
-		HostPort:       hostPort,
+		HostPort:        hostPort,
 		ApplicationName: applicationName,
-		UserServiceUrl: userServiceUrl,
-		KeyCloakConfig: moneymakergocloak.NewConfiguration(),
-		Plaid:          moneymakerplaid.NewConfiguration(),
+		UserServiceUrl:  userServiceUrl,
+		KeyCloakConfig:  moneymakergocloak.NewConfiguration(),
+		Plaid:           moneymakerplaid.NewConfiguration(),
 		Rabbit:          moneymakerrabbit.NewConfiguration(),
 	}
 }

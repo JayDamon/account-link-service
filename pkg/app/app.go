@@ -14,11 +14,11 @@ import (
 )
 
 type App struct {
-	Router *chi.Mux
-	Server *http.Server
-	RabbitConnection *moneymakerrabbit.Connection
+	Router           *chi.Mux
+	Server           *http.Server
+	RabbitConnection moneymakerrabbit.Connector
 	RabbitChannel    *amqp091.Channel
-	Config *config.Config
+	Config           *config.Config
 }
 
 func NewApplication() *App {

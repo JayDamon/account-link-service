@@ -18,10 +18,10 @@ import (
 
 type Handler struct {
 	config *config.Config
-	rabbit *moneymakerrabbit.Connection
+	rabbit moneymakerrabbit.Connector
 }
 
-func NewHandler(appConfig *config.Config, rabbitConnection *moneymakerrabbit.Connection) *Handler {
+func NewHandler(appConfig *config.Config, rabbitConnection moneymakerrabbit.Connector) *Handler {
 	return &Handler{
 		config: appConfig,
 		rabbit: rabbitConnection,
@@ -57,7 +57,7 @@ func (handler *Handler) CreatePrivateAccessToken(w http.ResponseWriter, r *http.
 
 	accessToken := exchangePublicTokenResp.GetAccessToken()
 	itemId := exchangePublicTokenResp.GetItemId()
-	userId := moneymakergocloak.ExtractUserIdFromToken(w, r, handler.config.KeyCloakConfig)
+	userId := moneymakergocloak.ExtractUserIdFromTokenFromRequest(w, r, handler.config.KeyCloakConfig)
 
 	pt := &models.PrivateToken{
 		UserID:       &userId,
@@ -65,7 +65,7 @@ func (handler *Handler) CreatePrivateAccessToken(w http.ResponseWriter, r *http.
 		ItemId:       &itemId,
 	}
 
-	bearerToken, err :=  moneymakergocloak.GetAuthorizationHeaderFromRequest(r)
+	bearerToken, err := moneymakergocloak.GetAuthorizationHeaderFromRequest(r)
 	if err != nil {
 		tools.RespondError(w, http.StatusUnauthorized, err.Error())
 	}
@@ -81,7 +81,12 @@ func (handler *Handler) CreatePrivateAccessToken(w http.ResponseWriter, r *http.
 	headers["Authorization"] = bearerToken
 
 	log.Printf("sending message to account_refresh queue %d", pt)
-	handler.rabbit.SendMessage(pt, headers, "application/json", "account_refresh")
+	err = handler.rabbit.SendMessage(pt, headers, "application/json", "account_refresh", "")
+	if err != nil {
+		fmt.Println("Error sending message", err)
+		tools.RespondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	tools.RespondNoBody(w, http.StatusCreated)
 }
@@ -93,7 +98,7 @@ func (handler *Handler) CreateLinkToken(w http.ResponseWriter, r *http.Request) 
 	countryCodes := convertCountryCodes(strings.Split(plaidConfig.CountryCodes, ","))
 	redirectURI := plaidConfig.RedirectUrl
 
-	userId := moneymakergocloak.ExtractUserIdFromToken(w, r, handler.config.KeyCloakConfig)
+	userId := moneymakergocloak.ExtractUserIdFromTokenFromRequest(w, r, handler.config.KeyCloakConfig)
 
 	user := plaid.LinkTokenCreateRequestUser{
 		ClientUserId: userId,
