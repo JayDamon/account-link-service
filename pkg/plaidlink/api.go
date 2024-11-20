@@ -17,22 +17,22 @@ import (
 )
 
 type Handler struct {
-	config *config.Config
-	rabbit moneymakerrabbit.Connector
+	config   *config.Config
+	plaidApi ApiService
+	rabbit   moneymakerrabbit.Connector
 }
 
-func NewHandler(appConfig *config.Config, rabbitConnection moneymakerrabbit.Connector) *Handler {
+func NewHandler(config *config.Config, plaidApiService ApiService, rabbitConnection moneymakerrabbit.Connector) *Handler {
 	return &Handler{
-		config: appConfig,
-		rabbit: rabbitConnection,
+		config:   config,
+		plaidApi: plaidApiService,
+		rabbit:   rabbitConnection,
 	}
 }
 
 func (handler *Handler) CreatePrivateAccessToken(w http.ResponseWriter, r *http.Request) {
 
 	var publicToken models.PublicToken
-
-	plaidConfig := handler.config.Plaid
 
 	log.Print("Received request ", &r.Body)
 
@@ -45,10 +45,8 @@ func (handler *Handler) CreatePrivateAccessToken(w http.ResponseWriter, r *http.
 
 	ctx := context.Background()
 
-	client := plaidConfig.Client
-	exchangePublicTokenResp, _, err := client.PlaidApi.ItemPublicTokenExchange(ctx).ItemPublicTokenExchangeRequest(
-		*plaid.NewItemPublicTokenExchangeRequest(publicToken.PublicToken),
-	).Execute()
+	request := plaid.NewItemPublicTokenExchangeRequest(publicToken.PublicToken)
+	exchangePublicTokenResp, _, err := handler.plaidApi.ItemPublicTokenExchange(ctx, request)
 	if err != nil {
 		fmt.Println("Error exchanging public token for private token", err)
 		tools.RespondError(w, http.StatusInternalServerError, err.Error())
@@ -59,10 +57,12 @@ func (handler *Handler) CreatePrivateAccessToken(w http.ResponseWriter, r *http.
 	itemId := exchangePublicTokenResp.GetItemId()
 	userId := moneymakergocloak.ExtractUserIdFromTokenFromRequest(w, r, handler.config.KeyCloakConfig)
 
+	isNew := true
 	pt := &models.PrivateToken{
 		UserID:       &userId,
 		PrivateToken: &accessToken,
 		ItemId:       &itemId,
+		IsNew:        &isNew,
 	}
 
 	bearerToken, err := moneymakergocloak.GetAuthorizationHeaderFromRequest(r)
@@ -118,7 +118,7 @@ func (handler *Handler) CreateLinkToken(w http.ResponseWriter, r *http.Request) 
 		request.SetRedirectUri(redirectURI)
 	}
 
-	linkTokenCreateResp, _, err := plaidConfig.Client.PlaidApi.LinkTokenCreate(ctx).LinkTokenCreateRequest(*request).Execute()
+	linkTokenCreateResp, _, err := handler.plaidApi.RequestLinkToken(ctx, request)
 	if err != nil {
 		log.Print("Error retrieving LinkToken ", err)
 		tools.RespondError(w, http.StatusInternalServerError, err.Error())
