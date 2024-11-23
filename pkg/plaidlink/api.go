@@ -55,7 +55,12 @@ func (handler *Handler) CreatePrivateAccessToken(w http.ResponseWriter, r *http.
 
 	accessToken := exchangePublicTokenResp.GetAccessToken()
 	itemId := exchangePublicTokenResp.GetItemId()
-	userId := moneymakergocloak.ExtractUserIdFromTokenFromRequest(w, r, handler.config.KeyCloakConfig)
+	userId, err := moneymakergocloak.ExtractUserIdFromRequest(r, handler.config.KeyCloakConfig)
+	if err != nil {
+		fmt.Println("Error extracting user id from request", err)
+		tools.RespondError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
 
 	isNew := true
 	pt := &models.PrivateToken{
@@ -67,7 +72,9 @@ func (handler *Handler) CreatePrivateAccessToken(w http.ResponseWriter, r *http.
 
 	bearerToken, err := moneymakergocloak.GetAuthorizationHeaderFromRequest(r)
 	if err != nil {
-		tools.RespondError(w, http.StatusUnauthorized, err.Error())
+		log.Printf("Error retreiving authorization header from request\nerr: %s", err)
+		tools.RespondError(w, http.StatusUnauthorized, "unauthorized")
+		return
 	}
 
 	err = users.CreateAccountToken(handler.config, pt, bearerToken)
@@ -98,8 +105,12 @@ func (handler *Handler) CreateLinkToken(w http.ResponseWriter, r *http.Request) 
 	countryCodes := convertCountryCodes(strings.Split(plaidConfig.CountryCodes, ","))
 	redirectURI := plaidConfig.RedirectUrl
 
-	userId := moneymakergocloak.ExtractUserIdFromTokenFromRequest(w, r, handler.config.KeyCloakConfig)
-
+	userId, err := moneymakergocloak.ExtractUserIdFromRequest(r, handler.config.KeyCloakConfig)
+	if err != nil {
+		log.Printf("Error extracting user from id\nerr: %s", err)
+		tools.RespondError(w, http.StatusInternalServerError, "unauthorized")
+		return
+	}
 	user := plaid.LinkTokenCreateRequestUser{
 		ClientUserId: userId,
 	}
