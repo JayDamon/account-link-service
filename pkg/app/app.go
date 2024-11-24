@@ -30,8 +30,9 @@ func NewApplication() *App {
 func (a *App) Initialize() {
 
 	a.RabbitConnection = a.Config.Rabbit.Connect()
+	plaidApi := plaidlink.NewApiService(a.Config.Plaid.Config)
 
-	handler := plaidlink.NewHandler(a.Config, a.RabbitConnection)
+	handler := plaidlink.NewHandler(a.Config, plaidApi, a.RabbitConnection)
 	a.RabbitConnection.DeclareQueue("account_refresh")
 
 	a.Server = &http.Server{

@@ -1,11 +1,13 @@
 package routes
 
 import (
+	"context"
 	"fmt"
 	"github.com/factotum/moneymaker/account-link-service/pkg/config"
 	"github.com/factotum/moneymaker/account-link-service/pkg/plaidlink"
 	"github.com/go-chi/chi/v5"
 	"github.com/jaydamon/moneymakerrabbit"
+	"github.com/plaid/plaid-go/plaid"
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -23,7 +25,8 @@ func TestCreateRoutes_RoutesExist(t *testing.T) {
 
 	cnf := config.GetConfig()
 	rabbitConnector := &TestConnector{}
-	testHandler := plaidlink.NewHandler(cnf, rabbitConnector)
+	apiService := &TestApiService{}
+	testHandler := plaidlink.NewHandler(cnf, apiService, rabbitConnector)
 
 	routes := CreateRoutes(testHandler, cnf.KeyCloakConfig)
 	chiRoutes := routes.(chi.Router)
@@ -82,4 +85,20 @@ func (conn *TestConnector) DeclareExchange(exchangeName string) {}
 
 func (conn *TestConnector) DeclareQueue(queueName string) *amqp091.Queue {
 	return nil
+}
+
+func (conn *TestConnector) ReceiveMessagesFromExchange(exchangeName string, consumingQueueName string, handler moneymakerrabbit.MessageHandlerFunc) {
+}
+
+type TestApiService struct {
+}
+
+func (api *TestApiService) ItemPublicTokenExchange(ctx context.Context, tokenExchangeRequest *plaid.ItemPublicTokenExchangeRequest) (plaid.ItemPublicTokenExchangeResponse, *http.Response, error) {
+	response := plaid.ItemPublicTokenExchangeResponse{}
+	return response, nil, nil
+}
+
+func (api *TestApiService) RequestLinkToken(ctx context.Context, linkTokenRequest *plaid.LinkTokenCreateRequest) (plaid.LinkTokenCreateResponse, *http.Response, error) {
+	response := plaid.LinkTokenCreateResponse{}
+	return response, nil, nil
 }
