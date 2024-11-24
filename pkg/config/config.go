@@ -14,6 +14,7 @@ type Config struct {
 	HostPort        string
 	ApplicationName string
 	UserServiceUrl  string
+	ConfigureCors   bool
 	KeyCloakConfig  *moneymakergocloak.Configuration
 	Plaid           *moneymakerplaid.Configuration
 	Rabbit          *moneymakerrabbit.Configuration
@@ -31,10 +32,12 @@ func GetConfig() *Config {
 
 	userServiceUrl := getOrDefault("USER_SERVICE_URL", "http://localhost:8091")
 
+	configureCors := getOrDefaultBool("CONFIGURE_CORS", true)
 	return &Config{
 		HostPort:        hostPort,
 		ApplicationName: applicationName,
 		UserServiceUrl:  userServiceUrl,
+		ConfigureCors:   configureCors,
 		KeyCloakConfig:  moneymakergocloak.NewConfiguration(),
 		Plaid:           moneymakerplaid.NewConfiguration(),
 		Rabbit:          moneymakerrabbit.NewConfiguration(),
@@ -47,4 +50,16 @@ func getOrDefault(envVar string, defaultVal string) string {
 		return defaultVal
 	}
 	return val
+}
+
+func getOrDefaultBool(envVar string, defaultVal bool) bool {
+	val := os.Getenv(envVar)
+	var returnVal = defaultVal
+	if val == "true" {
+		returnVal = true
+	} else if val == "false" {
+		returnVal = false
+	}
+
+	return returnVal
 }

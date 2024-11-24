@@ -28,7 +28,7 @@ func TestCreateRoutes_RoutesExist(t *testing.T) {
 	apiService := &TestApiService{}
 	testHandler := plaidlink.NewHandler(cnf, apiService, rabbitConnector)
 
-	routes := CreateRoutes(testHandler, cnf.KeyCloakConfig)
+	routes := CreateRoutes(testHandler, cnf.KeyCloakConfig, false)
 	chiRoutes := routes.(chi.Router)
 
 	assert.NotNil(t, chiRoutes)

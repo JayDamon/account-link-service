@@ -37,7 +37,7 @@ func (a *App) Initialize() {
 
 	a.Server = &http.Server{
 		Addr:    fmt.Sprintf(":%s", a.Config.HostPort),
-		Handler: routes.CreateRoutes(handler, a.Config.KeyCloakConfig),
+		Handler: routes.CreateRoutes(handler, a.Config.KeyCloakConfig, a.Config.ConfigureCors),
 	}
 
 }
