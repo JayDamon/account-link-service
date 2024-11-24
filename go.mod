@@ -11,11 +11,11 @@ require (
 require (
 	github.com/jaydamon/moneymakergocloak v0.0.0-20241123032700-1b410e5963a0
 	github.com/jaydamon/moneymakerplaid v0.0.0-20241121141910-9093640086d7
-	github.com/jaydamon/moneymakerrabbit v0.0.0-20241121142730-fabda18e7920
+	github.com/jaydamon/moneymakerrabbit v0.0.0-20241124135451-fe7a747f60ab
 	github.com/joho/godotenv v1.5.1
 	github.com/plaid/plaid-go v1.10.0
 	github.com/rabbitmq/amqp091-go v1.10.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 )
 
 require (
